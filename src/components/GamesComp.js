@@ -7,6 +7,8 @@ class GamesComponent extends React.Component {
             gameID: '',
             gameName: '',
             totalPlayers: '',
+            currentIndex: -1,
+            isUpdate: false,
             games: [
                 {
                     gameID: '1',
@@ -16,8 +18,15 @@ class GamesComponent extends React.Component {
             ]
         };
     }
-    editGame = () => {
+    enableEdit = (index) => {
         console.log('btn click editGame');
+        this.setState({
+            currentIndex: index,
+            isUpdate: true,
+            gameID: this.state.games[index].gameID,
+            gameName: this.state.games[index].gameName,
+            totalPlayers: this.state.games[index].totalPlayers
+        });
     }
     deleteGame = (index) => {
         console.log('btn click deleteGame', index);
@@ -25,6 +34,26 @@ class GamesComponent extends React.Component {
         games.splice(index, 1);
         this.setState({ games }, () => { alert('Deleted successfully') });
     }
+    backToAdd = () => {
+        this.setState({
+            gameID: "",
+            gameName: "",
+            totalPlayers: "",
+            currentIndex: -1,
+            isUpdate: false
+        });
+    }
+
+    updateGame = () => {
+        let games = this.state.games;
+        games[this.state.currentIndex] = {
+            gameID: this.state.gameID,
+            gameName: this.state.gameName,
+            totalPlayers: this.state.totalPlayers
+        }
+        this.setState({ games }, this.backToAdd);
+    }
+
     addGame = () => {
         console.log('btn click addGame');
         let game = {
@@ -34,18 +63,21 @@ class GamesComponent extends React.Component {
         };
         let games = this.state.games;
         games.push(game);
-        this.setState({ games }, () => { alert('Added ' + game.gameName + ' Details, successfully') });
+        this.setState({ games },
+            () => { alert('Added ' + game.gameName + ' Details, successfully') });
 
         this.setState({
             gameID: "",
             gameName: "",
-            totalPlayers: ""
+            totalPlayers: "",
+            currentIndex: -1,
+            isUpdate: false
         });
     }
     render() {
         return (
             <div>
-                <h1>Add Game</h1>
+                <h1>Game Component</h1>
                 <p>Game ID</p>
                 <input type="text" placeholder="Game ID" value={this.state.gameID}
                     onChange={(e) => { this.setState({ gameID: e.target.value }) }} />
@@ -57,9 +89,16 @@ class GamesComponent extends React.Component {
                     <option value="">Select Player</option>
                     <option value="1">1 Player</option>
                     <option value="2">2 Player</option>
-                </select>
-
-                <button className="btn btn-primary btn-sm" onClick={() => this.addGame()} >Add Game</button>
+                </select><br />
+                {
+                    this.state.isUpdate ?
+                        <div>
+                            <button className="btn btn-default btn-sm" onClick={() => this.backToAdd()} >back to Add</button>
+                            <button className="btn btn-primary btn-sm" onClick={() => this.updateGame()} >Update Game</button>
+                        </div>
+                        :
+                        <button className="btn btn-primary btn-sm" onClick={() => this.addGame()} >Add Game</button>
+                }
                 <h2>List of Games</h2>
                 <table className="table">
                     <thead>
@@ -78,7 +117,7 @@ class GamesComponent extends React.Component {
                                     <td>{value.gameName}</td>
                                     <td>{value.totalPlayers}</td>
                                     <td>
-                                        <button className="btn btn-primary btn-sm" onClick={() => this.editGame()}>Edit</button>
+                                        <button className="btn btn-primary btn-sm" onClick={() => this.enableEdit(index)}>Edit</button>
                                         <button className="btn btn-danger btn-sm" onClick={() => this.deleteGame(index)}>Delete</button>
                                     </td>
                                 </tr>
